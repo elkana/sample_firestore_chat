@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -83,6 +84,27 @@ class _ScreenLoginState extends State<ScreenLogin> {
       throw StateError('Sign in Aborted');
   }
 
+  Future<UserCredential?> googleSignInWeb() async {
+    GoogleAuthProvider authProvider = GoogleAuthProvider();
+
+    UserCredential? googleUser;
+
+    try {
+      googleUser = await _auth.signInWithPopup(authProvider);
+
+      if (googleUser != null) {
+        if (googleUser.additionalUserInfo!.isNewUser) {
+          await Database.addUser(googleUser.user!);
+        }
+
+        await Navigator.pushReplacementNamed(context, "/");
+      }
+    } catch (e) {
+      print(e);
+    }
+    return googleUser;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,7 +143,8 @@ class _ScreenLoginState extends State<ScreenLogin> {
                   onTap: navigateToSignUp,
                 ),
                 SignInButton(Buttons.Google,
-                    text: "Sign In with Google", onPressed: googleSignIn)
+                    text: "Sign In with Google",
+                    onPressed: kIsWeb ? googleSignInWeb : googleSignIn)
               ],
             ),
           ),
