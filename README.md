@@ -10,10 +10,11 @@ flutter build apk --release
 
 * choose a project in https://console.firebase.google.com/u/0/ 
   * fyi, firestore can only be used on a single project, not app
+  * firebase_auth is required to maintain user information such as uid to create p2p. To use sample chat without auth is another story.
 * Register new App with package `com.eric.firestore_chat`
 * get file `google_services.json` at https://console.firebase.google.com/u/0/project/flutterproject-57085/overview
 * drop it into `android/app`
-* per 19 juni 21, minimum Android SDK is 23
+* as 19 june 21, minimum Android SDK is 23
 * WAJIB buat SHA fingerprint di package yg udah ditentukan (misal `com.eric.firestore_chat`). SHA-1 ini merujuk pada file keystore **DEBUG** atau **PROD** jd pastikan dulu file `.keystore` yg mau diregister.
 Kalau debug, flutter menggunakan file yg sama dengan Android Studio.
 

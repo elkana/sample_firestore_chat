@@ -79,8 +79,7 @@ class _ScreenHomeState extends State<ScreenHome> {
             : Column(
                 children: <Widget>[
                   Text(
-                    "Hello ${user?.displayName ?? 'No Name'}\nyou are Logged in as ${user?.email ?? 'No Email'}",
-                  ),
+                      "Hello ${user?.displayName ?? 'No Name'}\nyou are Logged in as ${user?.email ?? 'No Email'}"),
                   Divider(),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
