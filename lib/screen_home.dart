@@ -54,6 +54,14 @@ class _ScreenHomeState extends State<ScreenHome> {
     this.getUser();
   }
 
+  String getGroupChatId(Map<String, dynamic> peer) {
+    if (user!.uid.hashCode <= peer['id'].hashCode) {
+      return user!.uid + '_' + peer['id'];
+    } else {
+      return peer['id'] + '_' + user!.uid;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,32 +101,29 @@ class _ScreenHomeState extends State<ScreenHome> {
                         List<Widget> list = [];
 
                         for (var data in snapshot.data!.docs) {
-                          Map<String, dynamic> row =
+                          Map<String, dynamic> peer =
                               data.data() as Map<String, dynamic>;
 
-                          if (row['email'] != user!.email) {
-                            list.add(ListTile(
-                              title: Text(row['name']),
-                              subtitle: Text(row['email']),
-                              onTap: () {
-                                final User peer = getUserMap(row);
+                          if (peer['email'] == user!.email) continue;
+                          list.add(ListTile(
+                            title: Text(peer['name']),
+                            subtitle: Text(peer['email']),
+                            onTap: () {
+                              String _grpId = getGroupChatId(peer);
 
-                                Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            ScreenChat(
-                                                loginId: user!.uid,
-                                                chatTo: peer,
-                                                conversationId:
-                                                    getGroupChatId())));
-                              },
-                            ));
+                              print('GroupId = $_grpId');
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (BuildContext context) => ScreenChat(
+                                      loginId: user!.uid,
+                                      chatTo: peer,
+                                      conversationId: _grpId)));
+                            },
+                          ));
 
-                            print('friend -> ' +
-                                row['name'] +
-                                ' | ' +
-                                row['email']);
-                          }
+                          print('friend -> ' +
+                              peer['name'] +
+                              ' | ' +
+                              peer['email']);
                         }
 
                         if (list.length < 1) return Text('No Friends to chat');

@@ -19,68 +19,51 @@ class Database {
 
     await _usersCollection.doc(newUser.uid).set(data);
   }
-/*
-  static Future<void> addItem({
-    required String title,
-    required String description,
-  }) async {
-    DocumentReference documentReferencer =
-        _mainCollection.doc(userUid).collection('items').doc();
 
-    Map<String, dynamic> data = <String, dynamic>{
-      "title": title,
-      "description": description,
-    };
-
-    await documentReferencer
-        .set(data)
-        .whenComplete(() => print("Note item added to the database"))
-        .catchError((e) => print(e));
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getMessages(
+      String conversationId) {
+    return _messagesCollection
+        .doc(conversationId)
+        .collection(conversationId)
+        .orderBy('timestamp', descending: true)
+        .limit(20)
+        .snapshots();
   }
 
-  static Future<void> updateItem({
-    required String title,
-    required String description,
-    required String docId,
-  }) async {
-    DocumentReference documentReferencer =
-        _mainCollection.doc(userUid).collection('items').doc(docId);
+  static void sendMessage(
+    String convoID,
+    String id,
+    String pid,
+    String content,
+    String timestamp,
+  ) {
+    final DocumentReference convoDoc = _messagesCollection.doc(convoID);
 
-    Map<String, dynamic> data = <String, dynamic>{
-      "title": title,
-      "description": description,
-    };
+    convoDoc.set(<String, dynamic>{
+      'lastMessage': <String, dynamic>{
+        'idFrom': id,
+        'idTo': pid,
+        'timestamp': timestamp,
+        'content': content,
+        'read': false
+      },
+      'users': <String>[id, pid]
+    }).then((dynamic success) {
+      final DocumentReference messageDoc =
+          _messagesCollection.doc(convoID).collection(convoID).doc(timestamp);
 
-    await documentReferencer
-        .update(data)
-        .whenComplete(() => print("Note item updated in the database"))
-        .catchError((e) => print(e));
+      _firestore.runTransaction((Transaction transaction) async {
+        transaction.set(
+          messageDoc,
+          <String, dynamic>{
+            'idFrom': id,
+            'idTo': pid,
+            'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+            'content': content,
+            'read': false
+          },
+        );
+      });
+    });
   }
-
-  static Stream<QuerySnapshot<Map<String, dynamic>?>> readItems() {
-    CollectionReference notesItemCollection =
-        _mainCollection.doc(userUid).collection('items');
-
-    return notesItemCollection.snapshots()
-        as Stream<QuerySnapshot<Map<String, dynamic>?>>;
-  }
-
-  static Stream<QuerySnapshot> readItemsOld() {
-    CollectionReference notesItemCollection =
-        _mainCollection.doc(userUid).collection('items');
-
-    return notesItemCollection.snapshots();
-  }
-
-  static Future<void> deleteItem({
-    required String docId,
-  }) async {
-    DocumentReference documentReferencer =
-        _mainCollection.doc(userUid).collection('items').doc(docId);
-
-    await documentReferencer
-        .delete()
-        .whenComplete(() => print('Note item deleted from the database'))
-        .catchError((e) => print(e));
-  }*/
 }

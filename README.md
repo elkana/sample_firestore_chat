@@ -9,6 +9,7 @@ flutter build apk --release
 ```
 
 * choose a project in https://console.firebase.google.com/u/0/ 
+  * fyi, firestore can only be used on a single project, not app
 * Register new App with package `com.eric.firestore_chat`
 * get file `google_services.json` at https://console.firebase.google.com/u/0/project/flutterproject-57085/overview
 * drop it into `android/app`
